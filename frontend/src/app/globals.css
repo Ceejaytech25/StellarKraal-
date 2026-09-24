@@ -7,6 +7,12 @@
   .safe-pb {
     padding-bottom: max(1rem, env(safe-area-inset-bottom));
   }
+
+  .mobile-bottom-nav {
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
 }
 
 /* ── Light mode CSS variables ── */
