@@ -8,18 +8,22 @@ import {
   Beef,
   Settings,
   Keyboard,
+  ArrowLeftRight,
 } from "lucide-react";
 import { Icon } from "@/components/Icon";
 import ThemeToggle from "./ThemeToggle";
 import { useWallet } from "@/hooks/useWallet";
 import { useAtRiskLoans } from "@/hooks/useAtRiskLoans";
 import NotificationBadge from "@/components/NotificationBadge";
+import { NotificationBell, NotificationDrawer } from "@/components/NotificationDrawer";
+import { useNotifications } from "@/hooks/useNotifications";
 import { useShortcutsHelp } from "@/components/KeyboardShortcutsProvider";
 
 const NAV_SECTIONS = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/loans", label: "Loans", icon: ClipboardList },
   { href: "/collateral", label: "Collateral", icon: Beef },
+  { href: "/transactions", label: "Transactions", icon: ArrowLeftRight },
   { href: "/settings", label: "Settings", icon: Settings },
 ] as const;
 
@@ -45,11 +49,20 @@ const NAV_SECTIONS = [
 
 export default function Navbar() {
   const [walletDropdownOpen, setWalletDropdownOpen] = useState(false);
+  const [notifOpen, setNotifOpen] = useState(false);
   const walletDropdownRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
   const { address, connect, disconnect } = useWallet();
   const { atRiskCount } = useAtRiskLoans();
   const shortcutsHelp = useShortcutsHelp();
+  const {
+    notifications,
+    unreadCount,
+    markRead,
+    markAllRead,
+    dismiss,
+    dismissAll,
+  } = useNotifications();
 
   // Close wallet dropdown when clicking outside
   useEffect(() => {
@@ -150,7 +163,7 @@ export default function Navbar() {
           })}
         </ul>
 
-        {/* Right side: shortcuts help + theme toggle. Mobile sections live in the bottom tab bar. */}
+        {/* Right side: shortcuts help + notification bell + theme toggle + hamburger */}
         <div className="flex items-center gap-1">
           {/* Keyboard shortcuts trigger — #531 */}
           <button
@@ -161,6 +174,25 @@ export default function Navbar() {
           >
             <Icon icon={Keyboard} size="sm" className="text-[color:var(--color-text-muted)]" />
           </button>
+
+          {/* Notification bell — #1066 */}
+          <NotificationBell
+            unreadCount={unreadCount}
+            onClick={() => setNotifOpen((v) => !v)}
+            isOpen={notifOpen}
+          />
+
+          {/* Notification drawer — #1066 */}
+          <NotificationDrawer
+            open={notifOpen}
+            onClose={() => setNotifOpen(false)}
+            notifications={notifications}
+            unreadCount={unreadCount}
+            onMarkRead={markRead}
+            onMarkAllRead={markAllRead}
+            onDismiss={dismiss}
+            onDismissAll={dismissAll}
+          />
 
           {/* Theme toggle — visible on all screen sizes */}
           <ThemeToggle />
